@@ -41,23 +41,24 @@ Revenue, Profit, Commission, Discounts.
 
 
 ## Business Questions Addressed
- Total Orders
- Order Timeline
- Average Order Value (AOV)
- Total Revenue
- Best-Performing Product Categories
- Top 25 Customers by Spending
- Repeat Customer Rate
- Most Popular Order Time (Hour of the Day)
- Most Orders by Day of the Week
- Revenue Over Time
- Ranking Top Products by Revenue within Categories
- Ranking Top Products by Quantity within Categories
- Category with Most Canceled Orders
- Top 5 Reasons for Order Cancellations
- Best-Selling Category by Season
- Division-Wise Average Delivery Time
- Fraudulent Order Calculation
+
+ #### Total Orders
+ #### Order Timeline
+ #### Average Order Value (AOV)
+ #### Total Revenue
+ #### Best-Performing Product Categories
+ #### Top 25 Customers by Spending
+ #### Repeat Customer Rate
+ #### Most Popular Order Time (Hour of the Day)
+ #### Most Orders by Day of the Week
+ #### Revenue Over Time
+ #### Ranking Top Products by Revenue within Categories
+ #### Ranking Top Products by Quantity within Categories
+ #### Category with Most Canceled Orders
+ #### Top 5 Reasons for Order Cancellations
+ #### Best-Selling Category by Season
+ #### Division-Wise Average Delivery Time
+ #### Fraudulent Order Calculation
 
 
 ## Tools & Technologies Used
