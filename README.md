@@ -63,6 +63,6 @@ Revenue, Profit, Commission, Discounts.
 
 ## Tools & Technologies Used
 
-Database Management: PostgreSQL
-Query Execution: pgAdmin
-Data Visualization: Power BI
+##### Database Management: PostgreSQL
+##### Query Execution: pgAdmin
+##### Data Visualization: Power BI
