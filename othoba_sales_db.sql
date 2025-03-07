@@ -1,4 +1,4 @@
--- Database Schema: Othoba Sales Table
+---Creating Table
 CREATE TABLE Othoba_sales (
     SubOrderId VARCHAR(50),
     OrderShippingExclTax DECIMAL(10, 2),
@@ -27,6 +27,7 @@ CREATE TABLE Othoba_sales (
     ProductName VARCHAR(400),
     ProductAttribute VARCHAR(255),
     SKU VARCHAR(50),
+   
     Vendor VARCHAR(100),
     VendorGroup VARCHAR(100),
     DeliveryChannelType VARCHAR(100),
@@ -50,134 +51,265 @@ CREATE TABLE Othoba_sales (
     B2C_B2B VARCHAR(50)
 );
 
--- Sales Analysis Queries
 
--- 1. Total Orders per Year
-SELECT COUNT(DISTINCT SubOrderId) AS total_orders, Year 
+--General Business Analysis
+
+---What is the total number of orders placed in each year? 
+
+SELECT COUNT(DISTINCT SubOrderId), Year AS total_orders
 FROM othoba_sales
 GROUP BY Year;
 
--- 2. Order Timeline
+---What is the earliest and latest order date in the dataset? 
+
 SELECT MIN(OrderCreatedOn) AS start_date, MAX(OrderCreatedOn) AS end_date
 FROM othoba_sales;
 
--- 3. Average Order Value (AOV)
-SELECT Year, ROUND(SUM(TotalSellingPrice) / COUNT(DISTINCT SubOrderId), 2) AS avg_order_value
-FROM othoba_sales 
-GROUP BY Year;
+---What is the average order value (AOV) for each year? 
+SELECT year, ROUND(SUM(TotalSellingPrice)/COUNT(DISTINCT SubOrderId), 2) AS AVG_ODR_VALUE
+FROM othoba_sales group by year;
 
--- 4. Total Revenue
-SELECT SUM(TotalSellingPrice) AS total_revenue, Year
+
+---What is the total revenue generated in each year? 
+SELECT SUM(totalsellingprice), Year AS Total_revenue
 FROM othoba_sales
-WHERE FinalOrderStatus = 'Sales'
-GROUP BY Year;
+WHERE FinalOrderStatus = 'Sales' group by Year;
 
--- 5. Best-Performing Product Category
-SELECT Category, SUM(TotalSellingPrice) AS total_revenue
+
+----What are the best-performing product categories in 2023 and 2024? 
+SELECT CATEGORY, SUM(totalsellingprice) AS TOTAL_REV
 FROM othoba_sales
-WHERE B2C_B2B = 'Others' AND Year = '2023' AND FinalOrderStatus = 'Sales'
-GROUP BY Category 
-ORDER BY total_revenue DESC;
+WHERE B2C_B2B = 'Others' and Year= '2023' and FinalOrderStatus='Sales'
+GROUP BY CATEGORy 
+ORDER BY TOTAL_REV DESC;
+----
+SELECT CATEGORY, SUM(totalsellingprice) AS TOTAL_REV
+FROM othoba_sales
+WHERE B2C_B2B = 'Others' and Year= '2024' and FinalOrderStatus='Sales'
+GROUP BY CATEGORy 
+ORDER BY TOTAL_REV DESC;
 
--- 6. Top 25 Customers by Spending
-SELECT MobileNumber, ShippingFullName, ShippingDivision, SUM(TotalSellingPrice) AS total_spent
+
+---Customer Behavior & Trends
+
+----Who are the top 25 customers based on total spending? 
+SELECT mobilenumber, ShippingFullName,ShippingDivision, SUM(totalsellingprice) AS total_spent
 FROM othoba_sales 
 WHERE B2C_B2B = 'Others' AND FinalOrderStatus = 'Sales'
-GROUP BY MobileNumber, ShippingFullName, ShippingDivision
+GROUP BY mobilenumber, ShippingFullName, ShippingDivision
 ORDER BY total_spent DESC
 LIMIT 25;
 
--- 7. Repeat Customer Rate
-SELECT (COUNT(DISTINCT CASE WHEN order_count > 1 THEN MobileNumber END) * 100.0 / COUNT(DISTINCT MobileNumber)) AS repeat_customer_rate
+
+---What is the repeat customer rate?
+SELECT
+ (COUNT(DISTINCT CASE WHEN order_count > 1 THEN mobilenumber END) * 100.0 / COUNT(DISTINCT mobilenumber)) AS repeat_customer_rate
 FROM (
-    SELECT MobileNumber, COUNT(SubOrderId) AS order_count
+    SELECT mobilenumber, COUNT(SubOrderId) AS order_count
     FROM othoba_sales
-    GROUP BY MobileNumber
+    GROUP BY mobilenumber
 ) AS customer_orders;
 
--- 8. Most Popular Order Time (Hour of the Day)
+
+
+--What is the most popular order time (hour of the day)?
 SELECT EXTRACT(HOUR FROM OrderCreatedOn) AS order_hour, COUNT(SubOrderId) AS order_count  
-FROM othoba_sales WHERE Year = '2024'  
+FROM othoba_sales where Year='2024'  
+GROUP BY order_hour  
+ORDER BY order_count DESC  
+LIMIT 5;
+-----
+SELECT EXTRACT(HOUR FROM OrderCreatedOn) AS order_hour, COUNT(SubOrderId) AS order_count  
+FROM othoba_sales where Year='2023'  
 GROUP BY order_hour  
 ORDER BY order_count DESC  
 LIMIT 5;
 
--- 9. Most Orders by Day of the Week
+----Weekly Most order Days
+
 SELECT day_of_week, total_sales
 FROM (
-    SELECT TO_CHAR(OrderCreatedOn, 'Day') AS day_of_week, SUM(TotalSellingPrice) AS total_sales
-    FROM othoba_sales WHERE Year = '2023'
+    SELECT TO_CHAR(OrderCreatedOn, 'Day') AS day_of_week, SUM(totalsellingprice) AS total_sales
+    FROM othoba_sales where Year = '2023'
     GROUP BY day_of_week
 ) AS subquery
 ORDER BY 
-  CASE day_of_week
-    WHEN 'Monday' THEN 1
-    WHEN 'Tuesday' THEN 2
-    WHEN 'Wednesday' THEN 3
-    WHEN 'Thursday' THEN 4
-    WHEN 'Friday' THEN 5
-    WHEN 'Saturday' THEN 6
-    WHEN 'Sunday' THEN 7
+  CASE 
+    WHEN day_of_week = 'Monday' THEN 1
+    WHEN day_of_week = 'Tuesday' THEN 2
+    WHEN day_of_week = 'Wednesday' THEN 3
+    WHEN day_of_week = 'Thursday' THEN 4
+    WHEN day_of_week = 'Friday' THEN 5
+    WHEN day_of_week = 'Saturday' THEN 6
+    WHEN day_of_week = 'Sunday' THEN 7
   END;
-
--- 10. Revenue Over Time
-SELECT Month, SUM(total_price) OVER (ORDER BY Month) AS cumulative_revenue
+------Weekly Most order Days
+SELECT day_of_week, total_sales
 FROM (
-    SELECT Month, SUM(TotalSellingPrice) AS total_price
-    FROM othoba_sales  
-    GROUP BY Month
-) AS daily_sales
-ORDER BY Month DESC;
+    SELECT TO_CHAR(OrderCreatedOn, 'Day') AS day_of_week, SUM(totalsellingprice) AS total_sales
+    FROM othoba_sales where Year = '2024'
+    GROUP BY day_of_week
+) AS subquery
+ORDER BY 
+  CASE 
+    WHEN day_of_week = 'Monday' THEN 1
+    WHEN day_of_week = 'Tuesday' THEN 2
+    WHEN day_of_week = 'Wednesday' THEN 3
+    WHEN day_of_week = 'Thursday' THEN 4
+    WHEN day_of_week = 'Friday' THEN 5
+    WHEN day_of_week = 'Saturday' THEN 6
+    WHEN day_of_week = 'Sunday' THEN 7
+  END;
+  
+---What percentage of customers are one-time buyers vs. repeat buyers?
+SELECT 
+Mobilenumber,
+ COUNT(*) AS TotalOrders,
+ CASE 
+ WHEN COUNT(*) = 1 THEN 'One-Time Buyer'
+   ELSE 'Repeat Customer'
+ END AS CustomerType
+FROM othoba_sales
+GROUP BY Mobilenumber
+ORDER BY TotalOrders DESC;
 
--- 11. Ranking Top Products by Revenue within Categories
+
+---Order Fulfillment & Logistics
+
+--What is the average delivery time per shipping division? 
+SELECT ShippingDivision, 
+       AVG(EXTRACT(DAY FROM (DeliveredDate - ShippedDate))) AS avg_delivery_time
+FROM othoba_sales
+WHERE FinalOrderStatus = 'Sales' AND DeliveredDate IS NOT NULL
+GROUP BY ShippingDivision
+ORDER BY avg_delivery_time DESC;
+
+--Which shipping divisions have the most late deliveries? 
+SELECT 
+    ShippingDivision,
+    COUNT(*) AS LateOrders
+FROM othoba_sales
+WHERE DeliveredDate > OrderPaidOn  
+ORDER BY LateOrders DESC;
+
+--What percentage of orders were on-time vs. delayed? 
+SELECT 
+    CASE 
+     WHEN DeliveredDate > OrderPaidOn THEN 'Late'
+     ELSE 'On-Time'
+    END AS DeliveryStatus,
+    COUNT(DISTINCT SubOrderId) AS DistinctOrderCount,
+    COUNT(*) AS TotalOrders,
+    SUM(CASE WHEN OrderStatus = 'Cancelled' THEN 1 ELSE 0 END) AS CancelledOrders
+FROM othoba_sales
+GROUP BY DeliveryStatus;
+
+---Profitability & Revenue Optimization
+
+--Which product categories have the highest and lowest profit margins? 
 WITH ranked_products AS (
-    SELECT Category, ProductName, SUM(TotalSellingPrice) AS revenue,
-    RANK() OVER (PARTITION BY Category ORDER BY SUM(TotalSellingPrice) DESC) AS rank
-    FROM othoba_sales WHERE FinalOrderStatus = 'Sales'
-    GROUP BY Category, ProductName
+ SELECT category, ProductName, SUM(totalsellingprice) AS revenue,
+ RANK() OVER (PARTITION BY category ORDER BY SUM(totalsellingprice) DESC) AS rank
+  FROM othoba_sales where FinalOrderStatus='Sales'
+   GROUP BY category, ProductName
 )
-SELECT Category, ProductName, revenue
+SELECT category, ProductName, revenue
 FROM ranked_products
 WHERE rank <= 1;
 
--- 12. Category-Wise Order Cancellations
-SELECT Category, COUNT(DISTINCT SubOrderId) AS cancel_count
+----What is the best Selling Category by Season?
+select case
+when month in ('November', 'December','January') then 'Fall'
+when month in ('February', 'March','April') then 'Spring'
+when month in ('May', 'June','July','August', 'Spetember','October') then 'Summer'
+end as season,
+ Category,
+Count(Distinct SubOrderId) as total_order
+From Othoba_sales
+where FinalOrderStatus = 'Sales' and Year='2023'
+Group By Season, Category
+Order by Season, total_order DESC limit 5;
+
+--What are the most profitable products in terms of margin? 
+WITH ranked_products AS (
+  SELECT category, ProductName, COUNT( Quantity) AS unit,
+    RANK() OVER (PARTITION BY category ORDER BY COUNT(Quantity) DESC) AS rank
+    FROM othoba_sales 
+    GROUP BY category, ProductName
+)
+SELECT category, ProductName, unit
+FROM ranked_products
+WHERE rank <= 1
+order by unit DESC;
+
+--How has revenue trended over time?
+
+SELECT Month,
+ SUM(total_price) OVER (ORDER BY Month) AS cumulative_revenue
+FROM (
+  SELECT Month, SUM(totalsellingprice) AS total_price
+  FROM othoba_sales  
+  GROUP BY Month
+) AS daily_sales
+ORDER BY Month DESC;
+
+
+--Order Cancellations & Payment Issues
+
+--What is the cancellation rate of categories?
+SELECT Category, COUNT(DISTINCT SubOrderId) AS Cancel
 FROM othoba_sales
 WHERE FinalOrderStatus = 'Cancel'
 GROUP BY Category 
-ORDER BY cancel_count DESC;
+ORDER BY Cancel DESC;
 
--- 13. Top 5 Reasons for Order Cancellations
-SELECT OrderCancelReason, COUNT(DISTINCT SubOrderId) AS reason_cancel
-FROM othoba_sales
-WHERE FinalOrderStatus = 'Cancel'
-GROUP BY OrderCancelReason
-ORDER BY reason_cancel DESC
-LIMIT 5;
+--What are the top 5 reasons customers cancel orders? 
+SELECT  OrderCancelReason, Count(DISTINCT SubOrderID)
+as Reason_Cancel from Othoba_sales
+Where FinalOrderStatus = 'Cancel'
+Group by  OrderCancelReason
+Order by  Reason_Cancel desc LIMIT 5;
 
--- 14. Best-Selling Category by Season
+
+--Which payment methods have the highest failed transactions? 
 SELECT 
-    CASE
-        WHEN Month IN ('November', 'December', 'January') THEN 'Fall'
-        WHEN Month IN ('February', 'March', 'April') THEN 'Spring'
-        WHEN Month IN ('May', 'June', 'July', 'August', 'September', 'October') THEN 'Summer'
-    END AS season,
-    Category,
-    COUNT(DISTINCT SubOrderId) AS total_order
+PaymentMethod,
+COUNT(*) AS TotalTransactions,
+SUM(CASE WHEN PaymentStatus = 'Voided' THEN 1 ELSE 0 END) AS FailedTransactions
 FROM othoba_sales
-WHERE FinalOrderStatus = 'Sales' AND Year = '2023'
-GROUP BY season, Category
-ORDER BY season, total_order DESC
-LIMIT 5;
+GROUP BY PaymentMethod
+ORDER BY FailedTransactions DESC;
 
--- 15. Fraudulent Order Detection
-SELECT MobileNumber, ShippingFullName, 
-    COUNT(DISTINCT SubOrderId) AS total_orders, 
-    COUNT(CASE WHEN PaymentStatus IN ('Partially Paid', 'Pending', 'Voided') THEN 1 END) AS unpaid_orders, 
-    COUNT(CASE WHEN FinalOrderStatus = 'Cancel' THEN 1 END) AS canceled_orders
+--What are the top 10 suspicious customers based on failed payments and cancellations? 
+SELECT Mobilenumber, ShippingFullName, 
+ COUNT(DISTINCT SubOrderId) AS total_orders, 
+COUNT(CASE WHEN PaymentStatus IN ('Partially Paid', 'Pending', 'Voided') THEN 1 END) AS unpaid_orders,
+COUNT(CASE WHEN FinalOrderStatus = 'Cancel' THEN 1 END) AS canceled_orders
 FROM othoba_sales
-GROUP BY MobileNumber, ShippingFullName
+GROUP BY mobilenumber, ShippingFullName
 HAVING COUNT(CASE WHEN PaymentStatus IN ('Partially Paid', 'Pending', 'Voided') THEN 1 END) > 3 
-AND COUNT(CASE WHEN FinalOrderStatus = 'Cancel' THEN 1 END) > 3
-ORDER BY unpaid_orders DESC
-LIMIT 10;
+   AND COUNT(CASE WHEN FinalOrderStatus = 'Cancel' THEN 1 END) > 3
+ORDER BY unpaid_orders DESC limit 10;
+
+----How many orders had the same phone number but multiple shipping addresses? 
+SELECT 
+    ShippingPhoneNumber,ShippingFullName, 
+    COUNT(DISTINCT ShippingStateProvince) AS UniqueAddresses, 
+    COUNT(*) AS OrderCount
+FROM othoba_sales
+GROUP BY ShippingPhoneNumber, ShippingFullName
+HAVING COUNT(DISTINCT ShippingStateProvince) > 1
+ORDER BY OrderCount DESC;
+
+----
+SELECT * 
+FROM othoba_sales
+WHERE TotalSellingPrice > (SELECT AVG(TotalSellingPrice) + 3 * STDDEV(TotalSellingPrice) FROM othoba_sales);
+
+
+
+
+
+
+
+
