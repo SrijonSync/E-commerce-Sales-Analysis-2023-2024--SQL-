@@ -1,192 +1,235 @@
-SQL-Based E-Commerce Analysis (Othoba.com)
-yaml
-Copy
-Edit
-# 📊 Othoba.com E-Commerce Analysis (SQL-Based)
 
-This repository contains SQL queries and business insights from **Othoba.com’s** e-commerce operations. The analysis covers **order fulfillment, revenue trends, profitability, customer behavior, cancellations, and fraud detection.**
+#  E-Commerce SQL Queries (Othoba.com)
+
+## Project Overview
+
+#### Objective
+
+Othoba is a leading e-commerce platform in Bangladesh, offering a wide range of products, from electronics to fashion and groceries. Since its launch in 2017, it has gained popularity for its competitive pricing, reliable delivery services, and a user-friendly shopping experience. Catering to both B2C and B2B customers, Othoba has built a strong reputation for customer satisfaction and efficient logistics, making it one of the most trusted online shopping destinations in Bangladesh.
+
+#### Data Source
+
+🔴Confidential e-commerce database containing order details, customer transactions, delivery records, and profitability metrics.
+
+## Analysis Areas
+
+#### General Business Performance (Orders, Revenue, AOV)
+
+#### Customer Behavior & Trends (Repeat Customers, Peak Order Times)
+
+#### Order Fulfillment & Logistics (Delivery Delays, Late Shipments)
+
+#### Profitability & Revenue Optimization (Top Categories, Margin Analysis)
+
+#### Order Cancellations & Payment Issues (COD vs. Online, Refund Trends)
+
+#### Fraud Detection & Risk Analysis (Suspicious Orders, High-Risk Transactions)
+
+
+## SQL Queries for Analysis
+
+### Creating Table
+```sql
+CREATE TABLE Othoba_sales (
+    SubOrderId VARCHAR(50),
+    OrderShippingExclTax DECIMAL(10, 2),
+    ShipmentBy VARCHAR(50),
+    ShippingStatus VARCHAR(50),
+    OrderStatus VARCHAR(50),
+    FinalOrderStatus VARCHAR(50),
+    PaymentStatus VARCHAR(50),
+    PreShipmentStatus VARCHAR(50),
+    OrderUpdateStatus VARCHAR(50),
+    ShippedDate TIMESTAMP,
+    DeliveredDate TIMESTAMP,
+    ShippingFullName VARCHAR(300),
+    ShippingDivision VARCHAR(300),
+    ShippingStateProvince VARCHAR(50),
+    OrderVia VARCHAR(50),
+    ShippingPhoneNumber VARCHAR(20),
+    MobileNumber VARCHAR(20),
+    OrderCreatedOn TIMESTAMP,
+    Month VARCHAR(20),
+    Year INT,
+    PaymentMethod VARCHAR(50),
+    OrderPaidOn TIMESTAMP,
+    OrderCancelReason VARCHAR(50),
+    SLNo INT,
+    ProductName VARCHAR(400),
+    ProductAttribute VARCHAR(255),
+    SKU VARCHAR(50),
+    Vendor VARCHAR(100),
+    VendorGroup VARCHAR(100),
+    DeliveryChannelType VARCHAR(100),
+    PaymentCondition VARCHAR(50),
+    Supplier VARCHAR(50),
+    Quantity INT,
+    RegularPrice DECIMAL(10, 2),
+    RegularPrice2 DECIMAL(10, 2),
+    UnitSellingPrice DECIMAL(10, 2),
+    UnitSellingPrice2 DECIMAL(10, 2),
+    TotalSellingPrice DECIMAL(10, 2),
+    TotalSellingPrice2 DECIMAL(10, 2),
+    UnitCostPrice DECIMAL(10, 2),
+    UnitCostPrice2 DECIMAL(10, 2),
+    TotalCostPrice DECIMAL(10, 2),
+    TotalCostPrice2 DECIMAL(10, 2),
+    Commission DECIMAL(10, 2),
+    Profit DECIMAL(10, 2),
+    SalesPerson VARCHAR(100),
+    Category VARCHAR(100),
+    B2C_B2B VARCHAR(50)
+);
+```
 
 ---
 
-## 📌 **Business Objectives**
-- ✅ **Improve Order Fulfillment & Reduce Delays**
-- ✅ **Optimize Revenue & Profitability**
-- ✅ **Minimize Order Cancellations & Payment Failures**
-- ✅ **Enhance Customer Retention & Engagement**
-- ✅ **Detect & Prevent Fraudulent Transactions**
+## **General Business Performance**
 
----
-
-## ⚠️ **Data Confidentiality Notice**
-This repository contains **confidential business insights** from Othoba.com’s internal database. **Do not share or distribute without authorization.**
-
----
-
-## 📂 **Project Structure**
-📁 Othoba_SQL_Analysis
-│── 📜 README.md (This File)
-│── 📁 SQL_Queries (All SQL scripts)
-│── 📁 Reports (Business Insights & Recommendations)
-
-yaml
-Copy
-Edit
-
----
-
-# 📊 **SQL Analysis Findings**
-
-## 1️⃣ **General Business Performance**
-
-### 🚀 **Total Number of Orders Per Year**
+### Total Number of Orders per Year
 ```sql
 SELECT COUNT(DISTINCT SubOrderId), Year AS total_orders
 FROM othoba_sales
 GROUP BY Year;
-Year	Total Orders
-2023	____
-2024	____
-📌 Recommendation:
+```
 
-Increase marketing efforts during slow periods to boost order volume.
-💰 Total Revenue Per Year
-sql
-Copy
-Edit
-SELECT SUM(TotalSellingPrice), Year AS Total_revenue
+### Earliest and Latest Order Date
+```sql
+SELECT MIN(OrderCreatedOn) AS start_date, MAX(OrderCreatedOn) AS end_date
+FROM othoba_sales;
+```
+
+### Average Order Value (AOV) per Year
+```sql
+SELECT year, ROUND(SUM(TotalSellingPrice)/COUNT(DISTINCT SubOrderId), 2) AS AVG_ODR_VALUE
+FROM othoba_sales GROUP BY year;
+```
+
+### Total Revenue per Year
+```sql
+SELECT SUM(totalsellingprice), Year AS Total_revenue
 FROM othoba_sales
-WHERE FinalOrderStatus = 'Sales' 
-GROUP BY Year;
-Year	Total Revenue (BDT)
-2023	____
-2024	____
-📌 Recommendation:
+WHERE FinalOrderStatus = 'Sales' GROUP BY Year;
+```
 
-Focus on high-margin products to maximize net profit.
-📦 Best-Performing Product Categories
-sql
-Copy
-Edit
-SELECT Category, SUM(TotalSellingPrice) AS Total_Rev
+### Best-Performing Product Categories (2023 & 2024)
+```sql
+SELECT CATEGORY, SUM(totalsellingprice) AS TOTAL_REV
+FROM othoba_sales
+WHERE B2C_B2B = 'Others' AND Year= '2023' AND FinalOrderStatus='Sales'
+GROUP BY CATEGORY
+ORDER BY TOTAL_REV DESC;
+```
+```sql
+SELECT CATEGORY, SUM(totalsellingprice) AS TOTAL_REV
+FROM othoba_sales
+WHERE B2C_B2B = 'Others' AND Year= '2024' AND FinalOrderStatus='Sales'
+GROUP BY CATEGORY
+ORDER BY TOTAL_REV DESC;
+```
+
+---
+
+## **Customer Behavior & Trends**
+
+### Top 25 Customers Based on Total Spending
+```sql
+SELECT mobilenumber, ShippingFullName,ShippingDivision, SUM(totalsellingprice) AS total_spent
 FROM othoba_sales
 WHERE B2C_B2B = 'Others' AND FinalOrderStatus = 'Sales'
-GROUP BY Category
-ORDER BY Total_Rev DESC;
-Rank	Category	Revenue (BDT)
-1️⃣	____	____
-2️⃣	____	____
-📌 Recommendation:
+GROUP BY mobilenumber, ShippingFullName, ShippingDivision
+ORDER BY total_spent DESC
+LIMIT 25;
+```
 
-Increase inventory & promotions for top-performing categories.
-2️⃣ Customer Behavior & Trends
-🎯 Repeat Customer Rate
-sql
-Copy
-Edit
-SELECT 
-    (COUNT(DISTINCT CASE WHEN order_count > 1 THEN MobileNumber END) * 100.0 / COUNT(DISTINCT MobileNumber)) AS repeat_customer_rate
+### Repeat Customer Rate
+```sql
+SELECT
+ (COUNT(DISTINCT CASE WHEN order_count > 1 THEN mobilenumber END) * 100.0 / COUNT(DISTINCT mobilenumber)) AS repeat_customer_rate
 FROM (
-    SELECT MobileNumber, COUNT(SubOrderId) AS order_count
+    SELECT mobilenumber, COUNT(SubOrderId) AS order_count
     FROM othoba_sales
-    GROUP BY MobileNumber
+    GROUP BY mobilenumber
 ) AS customer_orders;
-📌 Repeat Customer Rate: ____%
+```
 
-📌 Recommendation:
+---
 
-Launch loyalty programs to improve repeat purchase rates.
-⏰ Most Popular Order Time (Hour of the Day)
-sql
-Copy
-Edit
-SELECT EXTRACT(HOUR FROM OrderCreatedOn) AS order_hour, COUNT(SubOrderId) AS order_count  
-FROM othoba_sales  
-GROUP BY order_hour  
-ORDER BY order_count DESC  
-LIMIT 5;
-Hour	Orders Placed
-____	____
-____	____
-📌 Recommendation:
+## **Order Fulfillment & Logistics**
 
-Run targeted ads and flash sales during peak order hours.
-3️⃣ Order Fulfillment & Logistics
-📍 Average Delivery Time Per Shipping Division
-sql
-Copy
-Edit
-SELECT ShippingDivision, 
+### Average Delivery Time per Shipping Division
+```sql
+SELECT ShippingDivision,
        AVG(EXTRACT(DAY FROM (DeliveredDate - ShippedDate))) AS avg_delivery_time
 FROM othoba_sales
 WHERE FinalOrderStatus = 'Sales' AND DeliveredDate IS NOT NULL
 GROUP BY ShippingDivision
 ORDER BY avg_delivery_time DESC;
-Shipping Division	Avg. Delivery Time (Days)
-____	____
-____	____
-📌 Recommendation:
+```
 
-Work with faster logistics partners in slow-performing regions.
-❌ Order Cancellations & Payment Failures
-🚫 Top 5 Cancellation Reasons
-sql
-Copy
-Edit
-SELECT OrderCancelReason, COUNT(DISTINCT SubOrderId) AS Cancel_Count
+### Most Late Deliveries by Shipping Division
+```sql
+SELECT
+    ShippingDivision,
+    COUNT(*) AS LateOrders
+FROM othoba_sales
+WHERE DeliveredDate > OrderPaidOn  
+ORDER BY LateOrders DESC;
+```
+
+---
+
+## **Order Cancellations & Payment Issues**
+
+### Cancellation Rate per Category
+```sql
+SELECT Category, COUNT(DISTINCT SubOrderId) AS Cancel
 FROM othoba_sales
 WHERE FinalOrderStatus = 'Cancel'
+GROUP BY Category
+ORDER BY Cancel DESC;
+```
+
+### Top 5 Reasons for Order Cancellations
+```sql
+SELECT OrderCancelReason, COUNT(DISTINCT SubOrderID) AS Reason_Cancel
+FROM Othoba_sales
+WHERE FinalOrderStatus = 'Cancel'
 GROUP BY OrderCancelReason
-ORDER BY Cancel_Count DESC
+ORDER BY Reason_Cancel DESC
 LIMIT 5;
-Rank	Cancellation Reason	Orders Canceled
-1️⃣	____	____
-2️⃣	____	____
-📌 Recommendation:
+```
 
-Improve payment processing & refund policies to reduce cancellations.
-4️⃣ Fraud Detection & Risk Management
-🔍 Top 10 Suspicious Customers (Multiple Failed Payments)
-sql
-Copy
-Edit
-SELECT MobileNumber, ShippingFullName, 
-       COUNT(DISTINCT SubOrderId) AS total_orders, 
-       COUNT(CASE WHEN PaymentStatus IN ('Partially Paid', 'Pending', 'Voided') THEN 1 END) AS unpaid_orders
+### Customers with Multiple Shipping Addresses but Same Phone Number
+```sql
+SELECT
+    ShippingPhoneNumber,ShippingFullName,
+    COUNT(DISTINCT ShippingStateProvince) AS UniqueAddresses,
+    COUNT(*) AS OrderCount
 FROM othoba_sales
-GROUP BY MobileNumber, ShippingFullName
-HAVING COUNT(CASE WHEN PaymentStatus IN ('Partially Paid', 'Pending', 'Voided') THEN 1 END) > 3 
-ORDER BY unpaid_orders DESC 
-LIMIT 10;
-Customer	Failed Payments
-____	____
-📌 Recommendation:
+GROUP BY ShippingPhoneNumber, ShippingFullName
+HAVING COUNT(DISTINCT ShippingStateProvince) > 1
+ORDER BY OrderCount DESC;
+```
 
-Flag high-risk customers for manual review before order confirmation.
-📈 Final Recommendations
-✅ Reduce COD dependency by offering discounts on prepaid payments.
-✅ Improve delivery speed by partnering with better logistics providers.
-✅ Boost customer retention with personalized marketing campaigns.
-✅ Strengthen fraud detection with AI-based risk analysis.
+---
+#  **Final Recommendations**  
+✅ **Reduce COD dependency** by offering **discounts on prepaid payments**.  
+✅ **Improve delivery speed** by **partnering with better logistics providers**.  
+✅ **Boost customer retention** with **personalized marketing campaigns**.  
+✅ **Strengthen fraud detection** with **AI-based risk analysis**.  
 
-📌 How to Use This Repository
-💾 Installation & Setup
-Clone this repository:
-bash
-Copy
-Edit
-git clone https://github.com/your-username/Othoba_SQL_Analysis.git
-Navigate to the SQL queries folder:
-bash
-Copy
-Edit
-cd Othoba_SQL_Analysis/SQL_Queries
-Run the SQL scripts using PostgreSQL or MySQL.
-📩 Contact
-For any questions or suggestions, feel free to reach out! 🚀
+---  
 
-✅ Next Steps
- Build a Power BI / Tableau Dashboard for interactive analysis.
- Automate fraud detection alerts using SQL triggers.
- Implement predictive modeling to forecast revenue trends.
-This README is GitHub-optimized and ready to be uploaded to your repository. 🚀
-Let me know if you need any modifications or enhancements! 😊
+
+# 📩 **Author**  
+Srijon das
+
+Data Analyst
+
+🔹Linkedin: www.linkedin.com/in/srijon-das
+
+
+# 📩 **Contact**  
+For any questions or suggestions, feel free to reach out!  
+
