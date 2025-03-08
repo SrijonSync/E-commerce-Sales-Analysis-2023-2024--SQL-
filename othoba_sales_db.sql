@@ -1,3 +1,5 @@
+--Othoba E-commerce Data Analysis
+
 ---Creating Table
 CREATE TABLE Othoba_sales (
     SubOrderId VARCHAR(50),
