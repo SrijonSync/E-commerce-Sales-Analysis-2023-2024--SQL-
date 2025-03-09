@@ -222,12 +222,9 @@ ORDER BY OrderCount DESC;
 ---  
 
 
-#  **Author**  
-### Srijon das
 
-Data Analyst
-
-🔹Linkedin: www.linkedin.com/in/srijon-das
+## Author
+[@SrijonSync](https://github.com/SrijonSync)
 
 
 
