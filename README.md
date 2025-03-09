@@ -223,9 +223,23 @@ ORDER BY OrderCount DESC;
 
 
 
-## Author
+## Authors
+
 [@SrijonSync](https://github.com/SrijonSync)
 
+[![linkedin](https://img.shields.io/badge/linkedin-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/srijon-das/)
+
+## Feedback
+
+If you have any feedback, please reach out at srijonsheon.19@gmail.com
+
+## Related
+
+Other Problem Statements:
+
+[E-commerce Python EDA Analysis README](https://github.com/SrijonSync/E-commerce-Othoba-Sales-Analysis-2023-2024/blob/main/README.md)
+
+[E-commerce Power BI DashboardREADME](https://github.com/SrijonSync/Othoba-Sales-Dashboard---Power-BI-Project)
 
 
 
