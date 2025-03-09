@@ -222,14 +222,13 @@ ORDER BY OrderCount DESC;
 ---  
 
 
-# 📩 **Author**  
-Srijon das
+##  **Author**  
+###Srijon das
 
 Data Analyst
 
 🔹Linkedin: www.linkedin.com/in/srijon-das
 
 
-# 📩 **Contact**  
-For any questions or suggestions, feel free to reach out!  
+
 
