@@ -1,4 +1,4 @@
-
+![Image](https://github.com/user-attachments/assets/1b5b2747-63e5-418e-a902-7ac3fde8c92f)
 #  E-Commerce SQL Queries (Othoba.com)
 
 ## Project Overview
